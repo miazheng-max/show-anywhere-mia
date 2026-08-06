@@ -165,46 +165,56 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body)
 }
 </style>
 
+<!-- Shell text and the full card grid are PRE-RENDERED by render-gallery.py
+     (server-side, in the language passed as --lang). This is deliberate:
+     Claude Code's local-file preview shows HTML as a static snapshot with
+     JavaScript disabled, and a JS-only gallery renders as a blank page there.
+     The script below re-renders everything once it runs, so interactivity
+     (search, filters, language toggle, selection) layers on top. -->
 <div class="shell">
   <div class="masthead">
     <div>
       <h1>Style Gallery</h1>
-      <p id="introText"></p>
+      <p id="introText">__SSR_INTRO__</p>
     </div>
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="kind-toggle" id="langToggle" aria-label="Language / 语言">
         <button data-lang="en">EN</button>
         <button data-lang="zh">中文</button>
       </div>
-      <div class="count"><b id="countNum">0</b> / <span id="totalNum">0</span> <span id="countUnit"></span></div>
+      <div class="count"><b id="countNum">__SSR_TOTAL__</b> / <span id="totalNum">__SSR_TOTAL__</span> <span id="countUnit">__SSR_COUNT_UNIT__</span></div>
     </div>
   </div>
 
   <div class="controls">
     <div class="search-row">
-      <input id="searchInput" type="text" placeholder="" />
+      <input id="searchInput" type="text" placeholder="__SSR_SEARCH_PH__" />
       <div class="kind-toggle" id="kindToggle">
-        <button data-kind="all" class="active"></button>
-        <button data-kind="preset"></button>
-        <button data-kind="bold"></button>
+        <button data-kind="all" class="active">__SSR_KIND_ALL__</button>
+        <button data-kind="preset">__SSR_KIND_PRESET__</button>
+        <button data-kind="bold">__SSR_KIND_BOLD__</button>
       </div>
     </div>
-    <p class="kind-note" id="kindNote"></p>
-    <div class="chip-row" id="chipRow"></div>
+    <p class="kind-note" id="kindNote">__SSR_KIND_NOTE__</p>
+    <div class="chip-row" id="chipRow">__SSR_CHIPS__</div>
   </div>
 
-  <div class="grid" id="grid"></div>
+  <div class="grid" id="grid">__SSR_CARDS__</div>
 </div>
 
 <div class="selbar" id="selbar">
-  <span class="label" id="selLabel"></span>
+  <span class="label" id="selLabel">__SSR_SEL_LABEL__</span>
   <input id="selNameInput" class="selname-input" type="text" readonly aria-label="Selected style name / 选中的风格名称" />
-  <button id="copyBtn"></button>
+  <button id="copyBtn">__SSR_COPY__</button>
   <button class="dismiss" id="dismissBtn">✕</button>
 </div>
 
 <script id="galleryData" type="application/json">
 __DATA__
+</script>
+
+<script id="i18nData" type="application/json">
+__I18N__
 </script>
 
 <script>
@@ -220,80 +230,30 @@ __DATA__
   const selNameInput = document.getElementById('selNameInput');
 
   /* ===========================================
-     I18N — every visible string the shell renders.
+     I18N — every visible string the shell renders, plus the
+     mood/formality/scheme dictionaries. Injected as JSON by
+     render-gallery.py, which owns the single source of truth
+     (so the Python SSR pass and this script can never drift).
      Card taglines come bilingual from gallery-data.json
-     (tagline / tagline_zh); mood, formality and scheme
-     words are translated through the dictionaries below.
-     Style names and font names are proper nouns and stay
-     as-is in both languages.
+     (tagline / tagline_zh). Style names and font names are
+     proper nouns and stay as-is in both languages.
      =========================================== */
-  const I18N = {
-    en: {
-      intro: "A quick-look card for every available palette + typeface. This is not a layout preview — real typographic detail only shows up in the generated deck. Pick one you like and tell the assistant its name.",
-      countUnit: "styles",
-      searchPh: "Search by name, mood, keyword… e.g. warm / editorial / dark",
-      kindAll: "All", kindPreset: "Presets", kindBold: "Library",
-      kindNote: "Presets = a one-line layout hint + palette/font (lightweight) · Library = a full design-system doc with components, type scale and decorative detail (richer, generation follows it more closely)",
-      empty: "No matching styles — try another keyword",
-      selLabel: "Selected", copy: "Copy name", copied: "Copied ✓",
-      copyManual: "Press ⌘/Ctrl+C", badgePreset: "PRESET", badgeLibrary: "LIBRARY",
-    },
-    zh: {
-      intro: "当前可用的全部配色 + 字体速览卡片——这不是版式预览，真正的排版细节要看到生成结果才会体现。挑一个喜欢的，把名字告诉助手，就用它来生成。",
-      countUnit: "个风格",
-      searchPh: "按名字、气质、关键词搜索…比如 温暖 / 编辑风 / 深色",
-      kindAll: "全部", kindPreset: "精选预设", kindBold: "模板库",
-      kindNote: "精选预设 = 一句话版式提示 + 配色/字体（轻量） · 模板库 = 完整设计系统文档，含具体组件、字号阶梯、装饰细节（更详尽，生成效果更贴合）",
-      empty: "没有匹配的风格 — 试试换个关键词",
-      selLabel: "已选", copy: "复制名称", copied: "已复制 ✓",
-      copyManual: "请手动按 ⌘/Ctrl+C", badgePreset: "预设", badgeLibrary: "模板库",
-    },
-  };
-
-  const MOOD_ZH = {
-    "activist":"行动主义","approachable":"亲和","archival":"档案感","artistic":"艺术",
-    "atmospheric":"氛围感","bauhaus":"包豪斯","bold":"大胆","calm":"沉稳",
-    "cheerful":"欢快","clean":"干净","confident":"自信","considered":"考究",
-    "crafted":"匠心","creative":"创意","cultural-institution":"文化机构",
-    "cyberpunk":"赛博朋克","design-led":"设计主导","design-research":"设计研究",
-    "developer-focused":"开发者向","dramatic":"戏剧感","earthy":"大地气息",
-    "editorial":"编辑风","electric":"电光","elegant":"优雅","energetic":"活力",
-    "expressive":"表现力","fresh":"清新","friendly":"友好","fun":"有趣",
-    "futuristic":"未来感","geeky":"极客","graphic":"图形感","hacker":"黑客",
-    "handmade":"手作","high-contrast":"高对比","high-impact":"冲击力",
-    "honest":"朴实","hospitality":"款待感","indie":"独立","institutional":"机构感",
-    "intellectual":"知性","intentional":"用心","intimate":"亲密",
-    "kawaii-tech":"萌系科技","ledger":"账本风","literary":"文学","lo-fi":"低保真",
-    "loud":"张扬","luxe":"奢华","magazine-cover":"杂志封面",
-    "messy-on-purpose":"刻意凌乱","mid-century":"中古现代","modern":"现代",
-    "modernist":"现代主义","monochrome":"单色","moody":"暗调情绪","natural":"自然",
-    "newspaper":"报纸风","nocturnal":"夜色","nostalgic":"怀旧","organic":"有机",
-    "organized":"有序","personality-driven":"个性鲜明","playful":"俏皮",
-    "poster-like":"海报感","precise":"精准","premium":"高级",
-    "product-catalogue":"产品目录","professional":"专业","punchy":"干脆有力",
-    "quiet":"安静","raw":"粗粝","restrained":"克制","retro":"复古",
-    "retro-modern":"复古现代","retro-tech":"复古科技","scholarly":"学术",
-    "small-batch":"小批量","social":"社交","sophisticated":"老练",
-    "structural":"结构感","studious":"书卷","sunny":"明媚","tactile":"质感",
-    "tech-print":"科技印刷","technical":"技术流","techy":"科技感",
-    "thoughtful":"深思","trustworthy":"可信赖","underground":"地下",
-    "warm":"温暖","warm-classical":"暖调古典","warm-minimal":"暖调极简",
-    "warm-modern":"暖调现代","warm-retro":"暖调复古","weighty":"厚重",
-    "wholesome":"治愈","witty":"机智","workshop":"工坊",
-  };
-  const FORMALITY_ZH = {
-    "high":"正式","medium-high":"偏正式","medium":"中等",
-    "medium-low":"偏随性","low":"随性",
-  };
-  const SCHEME_ZH = { "light":"浅色","dark":"深色","mixed":"明暗混合" };
+  const I18N_DATA = JSON.parse(document.getElementById('i18nData').textContent);
+  const I18N = I18N_DATA.shell;
+  const MOOD_ZH = I18N_DATA.mood_zh;
+  const FORMALITY_ZH = I18N_DATA.formality_zh;
+  const SCHEME_ZH = I18N_DATA.scheme_zh;
 
   const zhMood = m => MOOD_ZH[m] || m;
 
-  // default language follows the browser; the toggle persists the choice
+  // Language priority: user's saved toggle choice > the language this file
+  // was rendered in (--lang, matches the conversation) > browser locale.
+  const SSR_LANG = "__SSR_LANG__";
   let lang;
   try { lang = localStorage.getItem('gallery-lang'); } catch(e) { lang = null; }
   if (lang !== 'en' && lang !== 'zh') {
-    lang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+    lang = (SSR_LANG === 'en' || SSR_LANG === 'zh') ? SSR_LANG
+      : ((navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en');
   }
 
   const langToggle = document.getElementById('langToggle');
@@ -337,6 +297,8 @@ __DATA__
   let activeMood = null;
   let selectedSlug = null;
 
+  // the SSR pass already baked static chips — replace them with live ones
+  chipRow.innerHTML = '';
   TOP_MOODS.forEach(m => {
     const chip = document.createElement('button');
     chip.className = 'chip';

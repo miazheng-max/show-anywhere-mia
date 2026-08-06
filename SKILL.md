@@ -93,19 +93,19 @@ If the source has images worth keeping:
 
 ## Q3 — Style (the gallery)
 
-Render the gallery to a temp path (never into the user's project):
+Render the gallery to a temp path (never into the user's project), passing the conversation's language:
 
 ```bash
-python3 <skill-dir>/scripts/render-gallery.py <temp-dir>/style-gallery.html
+python3 <skill-dir>/scripts/render-gallery.py <temp-dir>/style-gallery.html --lang zh   # or --lang en
 ```
 
-This regenerates `gallery-data.json` fresh from the bundled design systems, then produces one self-contained HTML file with search, mood-tag filters, a preset/library toggle, and an **EN/中 language switch** — the interface, every card's description, and all tags render fully in either language, so the user browses 100% in their own language.
+This regenerates `gallery-data.json` fresh from the bundled design systems, then produces one self-contained HTML file with search, mood-tag filters, a preset/library toggle, and an **EN/中 language switch** — the interface, every card's description, and all tags render fully in either language. The full gallery is also pre-rendered into the HTML in the `--lang` language, so even a viewer that never runs JavaScript still sees every card.
 
-**Then get it in front of the user**, using whatever the host supports, in this order:
+**Then get it in front of the user so it opens on its own — they must not have to click a file attachment.** In order:
 
-1. If the host has a publish/artifact tool that renders HTML for the user → publish it there.
-2. Otherwise open it locally: `open <path>` (macOS), `xdg-open <path>` (Linux), `start <path>` (Windows).
-3. If neither works (headless/remote), tell the user the file path and describe 4–6 styles that fit their brief in text, so they can still choose.
+1. **Host has a publish/artifact tool (e.g. Claude Code's `Artifact`) → use that tool, and only that tool.** It is what makes the page appear in the user's side panel automatically, with JavaScript running. **Never deliver the gallery as a plain file attachment or point the user at a local file path when an artifact tool exists** — Claude Code's file preview renders local HTML as a static snapshot (no JS: search, filters, language toggle and selection are all dead, and before pre-rendering existed the page showed up completely blank). A file chip the user has to click is exactly the failure mode this rule exists to prevent.
+2. No artifact tool → open it locally yourself: `open <path>` (macOS), `xdg-open <path>` (Linux), `start <path>` (Windows).
+3. Neither works (headless/remote) → give the file path and describe 4–6 styles that fit their brief in text, so they can still choose.
 
 Tell them: search or filter by mood, click a card to select, copy the name (or just type it), and paste it back in chat.
 
@@ -253,7 +253,7 @@ Tell the user:
 - How to customize: `:root` CSS variables for color, the font `<link>` for typography.
 - **What you left out and why** — e.g. images skipped for containing personal data.
 
-If the host has a publish/artifact tool, publish the deck there so it actually appears for the user; a file opened only via a local `open` command may not surface in their UI. When publishing to such a tool, strip the `<!DOCTYPE>`/`<html>`/`<head>`/`<body>` wrapper if the host supplies its own skeleton, and make sure every image is an inlined `data:` URI, since a published page can't read local disk.
+If the host has a publish/artifact tool, **publish the deck through it — never hand the deck over as a plain file attachment**. The same static-snapshot rule as the gallery applies, and it bites harder here: a no-JS preview of a deck shows only the first slide, with no navigation and no click-to-edit, which the user reads as "the deck is broken". The artifact tool is what makes it open in their side panel automatically with everything working. When publishing, strip the `<!DOCTYPE>`/`<html>`/`<head>`/`<body>` wrapper if the host supplies its own skeleton, and make sure every image is an inlined `data:` URI, since a published page can't read local disk.
 
 The output format was already settled by Q4 — deliver that. Afterwards, offer revisions; mention a shareable public link only if the user brings it up.
 
