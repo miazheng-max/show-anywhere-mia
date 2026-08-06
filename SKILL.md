@@ -40,21 +40,43 @@ Two things make this different from asking an agent to "make me some slides":
 
 ## Phase 0 — Detect Mode
 
-- **New deck** from a topic, notes, article, or PDF → Phase 1.
-- **Convert a .pptx** → Phase 4, then rejoin at Phase 2.
-- **Edit an existing deck** made by this skill → Phase 5 (modification rules).
+- **New deck** from a topic, notes, article, or PDF → start the Four Questions.
+- **Convert a .pptx** → PPTX Conversion below, then rejoin at Q3 (style).
+- **Edit an existing deck** made by this skill → Modifying an Existing Deck.
 
 ---
 
-## Phase 1 — Content Discovery
+## The Four Questions — the entire intake flow
 
-Ask these together in one message (use a structured-question UI if the host provides one). Skip any question the user has already answered.
+The user answers exactly **four questions** before generation starts. Nothing else is asked unless something is genuinely blocking.
 
-1. **Purpose** — pitch / teaching / conference talk / internal share / social post
-2. **Length** — short (5–10) / medium (10–20) / long (20+)
-3. **Content** — all ready / rough notes / topic only
-4. **Density** — *speaker-led* (one idea per slide, big type, lots of air) or *reading-first* (self-contained slides, structured detail)
-5. **Orientation** — only ask if ambiguous. **Default to portrait 9:16.** Use 16:9 when the user says widescreen, projector, conference, Keynote/PPT export, or similar.
+**Ask every question in the language the user is writing in.** A user typing Chinese gets the questions in Chinese; English gets English. The wording below is a reference, not a fixed script — translate naturally.
+
+| # | Question | When |
+|---|---|---|
+| 1 | **Purpose** — what is this for? | Asked together with Q2, first message |
+| 2 | **Density** — detail-rich or concise? | Asked together with Q1 |
+| 3 | **Style** — pick a palette from the gallery | After Q1+Q2; render the gallery, then stop and wait |
+| 4 | **Output** — HTML or PDF? | Right after the style is chosen, before generating |
+
+Do **not** ask about: slide count (derive it from the content and the density answer), orientation (portrait 9:16 is the default; only switch to 16:9 if the user themselves asks for widescreen/projector), or inline editing (always on).
+
+### Q1 — Purpose
+
+> What will this deck be used for?
+> - Marketing / promotion
+> - Training / explanation
+> - Talk / pitch on stage
+> - Internal report
+> - Something else (tell me)
+
+### Q2 — Content density
+
+> Which shape fits better?
+> - **Detail-rich** — more like ~6+ self-contained pages the reader can study on their own
+> - **Concise for speaking** — fewer words, bigger type, you talk over it
+
+Ask Q1 and Q2 together in one message (use the host's structured-question UI if it has one). Skip anything the user already said.
 
 If the user supplied source material (article, PDF, notes), read it before proposing an outline.
 
@@ -69,7 +91,7 @@ If the source has images worth keeping:
 
 ---
 
-## Phase 2 — Style Discovery (the gallery)
+## Q3 — Style (the gallery)
 
 Render the gallery to a temp path (never into the user's project):
 
@@ -77,7 +99,7 @@ Render the gallery to a temp path (never into the user's project):
 python3 <skill-dir>/scripts/render-gallery.py <temp-dir>/style-gallery.html
 ```
 
-This regenerates `gallery-data.json` fresh from the bundled design systems, then produces one self-contained HTML file with search, mood-tag filters, and a preset/library toggle.
+This regenerates `gallery-data.json` fresh from the bundled design systems, then produces one self-contained HTML file with search, mood-tag filters, a preset/library toggle, and an **EN/中 language switch** — the interface, every card's description, and all tags render fully in either language, so the user browses 100% in their own language.
 
 **Then get it in front of the user**, using whatever the host supports, in this order:
 
@@ -85,15 +107,29 @@ This regenerates `gallery-data.json` fresh from the bundled design systems, then
 2. Otherwise open it locally: `open <path>` (macOS), `xdg-open <path>` (Linux), `start <path>` (Windows).
 3. If neither works (headless/remote), tell the user the file path and describe 4–6 styles that fit their brief in text, so they can still choose.
 
-Tell them: search or filter by mood, click a card to select, then type the style name back in chat.
+Tell them: search or filter by mood, click a card to select, copy the name (or just type it), and paste it back in chat.
 
 **Then stop and wait.** Do not pick for them. Do not start generating.
 
 > Prefer the gallery. Fall back to describing 3 AI-picked options only if rendering genuinely fails.
 
+## Q4 — Output format
+
+The moment the user names a style, ask the last question (again in their language):
+
+> How do you want the result?
+> - **HTML (recommended)** — opens in any browser, and you can click any text to edit it afterwards
+> - **PDF** — a downloadable static file for sending or printing; text is not editable
+
+Do not offer "deploy to a public URL" as one of these options. Deployment exists (`scripts/deploy.sh`) but only happens if the user later explicitly asks for a shareable link.
+
+If they choose PDF: still generate the HTML deck first (it is the source of truth), then export it with `scripts/export-pdf.py` and deliver the PDF as the primary artifact.
+
+With all four answers in hand, generate.
+
 ---
 
-## Phase 3 — Generate
+## Generate
 
 Once the user names a style:
 
@@ -174,17 +210,17 @@ Keyboard (arrows/space/PageUp/PageDown), mouse wheel, and touch swipe. Debounce 
 
 ---
 
-## Phase 4 — PPTX Conversion
+## PPTX Conversion
 
 ```bash
 python3 <skill-dir>/scripts/extract-pptx.py <input.pptx> <output_dir>
 ```
 
-(needs `python-pptx`). Show the user the extracted titles and image count to confirm, then go to Phase 2. Preserve text, images, slide order, and speaker notes (as HTML comments).
+(needs `python-pptx`). Show the user the extracted titles and image count to confirm, then continue from Q3 (style). Preserve text, images, slide order, and speaker notes (as HTML comments).
 
 ---
 
-## Phase 5 — Modifying an Existing Deck
+## Modifying an Existing Deck
 
 Fitting is the main risk. Before adding anything, count what's already on the slide.
 
@@ -219,13 +255,13 @@ Tell the user:
 
 If the host has a publish/artifact tool, publish the deck there so it actually appears for the user; a file opened only via a local `open` command may not surface in their UI. When publishing to such a tool, strip the `<!DOCTYPE>`/`<html>`/`<head>`/`<body>` wrapper if the host supplies its own skeleton, and make sure every image is an inlined `data:` URI, since a published page can't read local disk.
 
-Then offer: revisions, a PDF, or a shareable link.
+The output format was already settled by Q4 — deliver that. Afterwards, offer revisions; mention a shareable public link only if the user brings it up.
 
 ---
 
-## Phase 6 — Export and Share (only when asked)
+## Export and Share
 
-### PDF
+### PDF (runs automatically when Q4 = PDF; also available on request later)
 
 ```bash
 python3 <skill-dir>/scripts/export-pdf.py <deck.html> [output.pdf] [--compact]

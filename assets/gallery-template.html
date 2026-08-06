@@ -169,21 +169,27 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body)
   <div class="masthead">
     <div>
       <h1>Style Gallery</h1>
-      <p>当前可用的全部配色 + 字体速览卡片——这不是版式预览，真正的排版细节要看到生成结果才会体现。挑一个喜欢的，把名字告诉助手，就用它来生成。</p>
+      <p id="introText"></p>
     </div>
-    <div class="count"><b id="countNum">0</b> / <span id="totalNum">0</span> styles</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="kind-toggle" id="langToggle" aria-label="Language / 语言">
+        <button data-lang="en">EN</button>
+        <button data-lang="zh">中文</button>
+      </div>
+      <div class="count"><b id="countNum">0</b> / <span id="totalNum">0</span> <span id="countUnit"></span></div>
+    </div>
   </div>
 
   <div class="controls">
     <div class="search-row">
-      <input id="searchInput" type="text" placeholder="按名字、气质、关键词搜索…比如 warm / editorial / dark" />
+      <input id="searchInput" type="text" placeholder="" />
       <div class="kind-toggle" id="kindToggle">
-        <button data-kind="all" class="active">全部</button>
-        <button data-kind="preset">精选预设</button>
-        <button data-kind="bold">模板库</button>
+        <button data-kind="all" class="active"></button>
+        <button data-kind="preset"></button>
+        <button data-kind="bold"></button>
       </div>
     </div>
-    <p class="kind-note">精选预设 = 一句话版式提示 + 配色/字体（轻量）&nbsp;·&nbsp; 模板库 = 完整设计系统文档，含具体组件、字号阶梯、装饰细节（更详尽，生成效果更贴合）</p>
+    <p class="kind-note" id="kindNote"></p>
     <div class="chip-row" id="chipRow"></div>
   </div>
 
@@ -191,9 +197,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body)
 </div>
 
 <div class="selbar" id="selbar">
-  <span class="label">已选</span>
-  <input id="selNameInput" class="selname-input" type="text" readonly aria-label="选中的风格名称，可直接手动复制" />
-  <button id="copyBtn">复制名称</button>
+  <span class="label" id="selLabel"></span>
+  <input id="selNameInput" class="selname-input" type="text" readonly aria-label="Selected style name / 选中的风格名称" />
+  <button id="copyBtn"></button>
   <button class="dismiss" id="dismissBtn">✕</button>
 </div>
 
@@ -212,6 +218,112 @@ __DATA__
   const totalNum = document.getElementById('totalNum');
   const selbar = document.getElementById('selbar');
   const selNameInput = document.getElementById('selNameInput');
+
+  /* ===========================================
+     I18N — every visible string the shell renders.
+     Card taglines come bilingual from gallery-data.json
+     (tagline / tagline_zh); mood, formality and scheme
+     words are translated through the dictionaries below.
+     Style names and font names are proper nouns and stay
+     as-is in both languages.
+     =========================================== */
+  const I18N = {
+    en: {
+      intro: "A quick-look card for every available palette + typeface. This is not a layout preview — real typographic detail only shows up in the generated deck. Pick one you like and tell the assistant its name.",
+      countUnit: "styles",
+      searchPh: "Search by name, mood, keyword… e.g. warm / editorial / dark",
+      kindAll: "All", kindPreset: "Presets", kindBold: "Library",
+      kindNote: "Presets = a one-line layout hint + palette/font (lightweight) · Library = a full design-system doc with components, type scale and decorative detail (richer, generation follows it more closely)",
+      empty: "No matching styles — try another keyword",
+      selLabel: "Selected", copy: "Copy name", copied: "Copied ✓",
+      copyManual: "Press ⌘/Ctrl+C", badgePreset: "PRESET", badgeLibrary: "LIBRARY",
+    },
+    zh: {
+      intro: "当前可用的全部配色 + 字体速览卡片——这不是版式预览，真正的排版细节要看到生成结果才会体现。挑一个喜欢的，把名字告诉助手，就用它来生成。",
+      countUnit: "个风格",
+      searchPh: "按名字、气质、关键词搜索…比如 温暖 / 编辑风 / 深色",
+      kindAll: "全部", kindPreset: "精选预设", kindBold: "模板库",
+      kindNote: "精选预设 = 一句话版式提示 + 配色/字体（轻量） · 模板库 = 完整设计系统文档，含具体组件、字号阶梯、装饰细节（更详尽，生成效果更贴合）",
+      empty: "没有匹配的风格 — 试试换个关键词",
+      selLabel: "已选", copy: "复制名称", copied: "已复制 ✓",
+      copyManual: "请手动按 ⌘/Ctrl+C", badgePreset: "预设", badgeLibrary: "模板库",
+    },
+  };
+
+  const MOOD_ZH = {
+    "activist":"行动主义","approachable":"亲和","archival":"档案感","artistic":"艺术",
+    "atmospheric":"氛围感","bauhaus":"包豪斯","bold":"大胆","calm":"沉稳",
+    "cheerful":"欢快","clean":"干净","confident":"自信","considered":"考究",
+    "crafted":"匠心","creative":"创意","cultural-institution":"文化机构",
+    "cyberpunk":"赛博朋克","design-led":"设计主导","design-research":"设计研究",
+    "developer-focused":"开发者向","dramatic":"戏剧感","earthy":"大地气息",
+    "editorial":"编辑风","electric":"电光","elegant":"优雅","energetic":"活力",
+    "expressive":"表现力","fresh":"清新","friendly":"友好","fun":"有趣",
+    "futuristic":"未来感","geeky":"极客","graphic":"图形感","hacker":"黑客",
+    "handmade":"手作","high-contrast":"高对比","high-impact":"冲击力",
+    "honest":"朴实","hospitality":"款待感","indie":"独立","institutional":"机构感",
+    "intellectual":"知性","intentional":"用心","intimate":"亲密",
+    "kawaii-tech":"萌系科技","ledger":"账本风","literary":"文学","lo-fi":"低保真",
+    "loud":"张扬","luxe":"奢华","magazine-cover":"杂志封面",
+    "messy-on-purpose":"刻意凌乱","mid-century":"中古现代","modern":"现代",
+    "modernist":"现代主义","monochrome":"单色","moody":"暗调情绪","natural":"自然",
+    "newspaper":"报纸风","nocturnal":"夜色","nostalgic":"怀旧","organic":"有机",
+    "organized":"有序","personality-driven":"个性鲜明","playful":"俏皮",
+    "poster-like":"海报感","precise":"精准","premium":"高级",
+    "product-catalogue":"产品目录","professional":"专业","punchy":"干脆有力",
+    "quiet":"安静","raw":"粗粝","restrained":"克制","retro":"复古",
+    "retro-modern":"复古现代","retro-tech":"复古科技","scholarly":"学术",
+    "small-batch":"小批量","social":"社交","sophisticated":"老练",
+    "structural":"结构感","studious":"书卷","sunny":"明媚","tactile":"质感",
+    "tech-print":"科技印刷","technical":"技术流","techy":"科技感",
+    "thoughtful":"深思","trustworthy":"可信赖","underground":"地下",
+    "warm":"温暖","warm-classical":"暖调古典","warm-minimal":"暖调极简",
+    "warm-modern":"暖调现代","warm-retro":"暖调复古","weighty":"厚重",
+    "wholesome":"治愈","witty":"机智","workshop":"工坊",
+  };
+  const FORMALITY_ZH = {
+    "high":"正式","medium-high":"偏正式","medium":"中等",
+    "medium-low":"偏随性","low":"随性",
+  };
+  const SCHEME_ZH = { "light":"浅色","dark":"深色","mixed":"明暗混合" };
+
+  const zhMood = m => MOOD_ZH[m] || m;
+
+  // default language follows the browser; the toggle persists the choice
+  let lang;
+  try { lang = localStorage.getItem('gallery-lang'); } catch(e) { lang = null; }
+  if (lang !== 'en' && lang !== 'zh') {
+    lang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+  }
+
+  const langToggle = document.getElementById('langToggle');
+  langToggle.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      lang = btn.dataset.lang;
+      try { localStorage.setItem('gallery-lang', lang); } catch(e) {}
+      applyLang();
+    });
+  });
+
+  function applyLang(){
+    const t = I18N[lang];
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    langToggle.querySelectorAll('button').forEach(b =>
+      b.classList.toggle('active', b.dataset.lang === lang));
+    document.getElementById('introText').textContent = t.intro;
+    document.getElementById('countUnit').textContent = t.countUnit;
+    searchInput.placeholder = t.searchPh;
+    kindToggle.querySelector('[data-kind="all"]').textContent = t.kindAll;
+    kindToggle.querySelector('[data-kind="preset"]').textContent = t.kindPreset;
+    kindToggle.querySelector('[data-kind="bold"]').textContent = t.kindBold;
+    document.getElementById('kindNote').textContent = t.kindNote;
+    document.getElementById('selLabel').textContent = t.selLabel;
+    document.getElementById('copyBtn').textContent = t.copy;
+    chipRow.querySelectorAll('.chip').forEach(c => {
+      c.textContent = lang === 'zh' ? zhMood(c.dataset.mood) : c.dataset.mood;
+    });
+    render();
+  }
 
   totalNum.textContent = data.length;
 
@@ -256,13 +368,19 @@ __DATA__
   }
 
   function cardHTML(item){
+    const zh = lang === 'zh';
     const bg = item.colors[0] || '#cccccc';
     const textColor = textColorFor(bg);
     const swatches = item.colors.slice(0,5).map(c => `<span style="background:${c}"></span>`).join('');
-    const pills = item.mood.slice(0,3).map(m => `<span class="pill">${m}</span>`).join('');
-    const extraPills = [item.formality, item.scheme].filter(Boolean).map(v => `<span class="pill">${v}</span>`).join('');
-    const kindLabel = item.kind === 'preset' ? 'PRESET' : 'LIBRARY';
+    const pills = item.mood.slice(0,3)
+      .map(m => `<span class="pill">${zh ? zhMood(m) : m}</span>`).join('');
+    const extraPills = [
+        zh ? FORMALITY_ZH[item.formality] || item.formality : item.formality,
+        zh ? SCHEME_ZH[item.scheme] || item.scheme : item.scheme,
+      ].filter(Boolean).map(v => `<span class="pill">${v}</span>`).join('');
+    const kindLabel = item.kind === 'preset' ? I18N[lang].badgePreset : I18N[lang].badgeLibrary;
     const kindBg = item.kind === 'preset' ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)';
+    const tagline = zh ? (item.tagline_zh || item.tagline) : item.tagline;
     return `
       <article class="card" data-slug="${item.slug}" tabindex="0" role="button" aria-pressed="false">
         <div class="plate" style="background:${bg};color:${textColor};">
@@ -272,7 +390,7 @@ __DATA__
         </div>
         <div class="swatches">${swatches}</div>
         <div class="body">
-          <p class="tagline">${item.tagline}</p>
+          <p class="tagline">${tagline}</p>
           <div class="meta">${pills}${extraPills}</div>
         </div>
       </article>`;
@@ -285,7 +403,13 @@ __DATA__
       if (activeKind !== 'all' && item.kind !== activeKind) return false;
       if (activeMood && !item.mood.includes(activeMood)) return false;
       if (q){
-        const hay = (item.name + ' ' + item.tagline + ' ' + item.mood.join(' ') + ' ' + (item.scheme||'') + ' ' + (item.formality||'')).toLowerCase();
+        // search across BOTH languages regardless of display language, so
+        // "warm" and "温暖" both find the same cards
+        const zhMoods = item.mood.map(zhMood).join(' ');
+        const hay = (item.name + ' ' + item.tagline + ' ' + (item.tagline_zh||'') + ' '
+          + item.mood.join(' ') + ' ' + zhMoods + ' '
+          + (item.scheme||'') + ' ' + (SCHEME_ZH[item.scheme]||'') + ' '
+          + (item.formality||'') + ' ' + (FORMALITY_ZH[item.formality]||'')).toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -293,7 +417,7 @@ __DATA__
     countNum.textContent = filtered.length;
     grid.innerHTML = filtered.length
       ? filtered.map(cardHTML).join('')
-      : '<div class="empty">没有匹配的风格 — 试试换个关键词</div>';
+      : `<div class="empty">${I18N[lang].empty}</div>`;
 
     grid.querySelectorAll('.card').forEach(card => {
       card.classList.toggle('selected', card.dataset.slug === selectedSlug);
@@ -350,18 +474,18 @@ __DATA__
     const original = btn.textContent;
     const ok = await copyText(item.name);
     if (ok){
-      btn.textContent = '已复制 ✓';
+      btn.textContent = I18N[lang].copied;
     } else {
       // scripted copy genuinely failed (common in sandboxed iframes) — the
       // name is already selected in the input above, so tell the user to
       // use their own keyboard shortcut instead of pretending it worked
       selNameInput.focus();
       selNameInput.select();
-      btn.textContent = '请手动按 ⌘/Ctrl+C';
+      btn.textContent = I18N[lang].copyManual;
     }
     setTimeout(() => btn.textContent = original, 1600);
   });
 
-  render();
+  applyLang();
 })();
 </script>

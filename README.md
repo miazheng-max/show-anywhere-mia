@@ -8,19 +8,25 @@ An agent skill for [Claude Code](https://claude.com/claude-code) and [OpenAI Cod
   <img src="docs/demo.gif" alt="Browsing the style gallery, filtering by mood, picking Cobalt Grid, and the resulting portrait deck" width="100%">
 </p>
 
-## Why this one
+## Why this one · 为什么选它
 
-**📱 Portrait by default.** The canvas is 1080×1920 (9:16) unless you ask for widescreen. Most decks get read on a phone now, not projected — so that's the default, and the skill knows how to *re-author* a landscape design system into a vertical one rather than just squashing it.
+**📱 Portrait by default.** The canvas is 1080×1920 (9:16) unless you ask for widescreen. Most decks get read on a phone now, not projected — and the skill *re-authors* landscape design systems into vertical layouts instead of squashing them.
+**竖屏优先。** 默认 1080×1920（9:16）画布，为手机阅读而生；横屏设计系统会被真正重排成竖版，而不是简单压缩。
 
-**🎨 You pick the look by seeing it.** 46 complete design systems ship in the box. The skill renders them all as a searchable, filterable gallery — real palettes in their real display fonts — so you choose by sight instead of typing "make it modern but warm" and hoping.
+**🎨 You pick the look by seeing it.** 46 complete design systems, rendered as a searchable gallery with an EN/中 toggle — real palettes in their real display fonts. Choose by sight, not by typing "modern but warm" and hoping.
+**看着挑风格。** 46 套完整设计系统渲染成可搜索的画廊，界面与卡片介绍支持中英一键切换——用眼睛选，不靠形容词碰运气。
 
-**✍️ Click any text to edit it.** No edit mode, no toggle button to hunt for. Every text element is editable the moment the deck loads; changes autosave to your browser.
+**✍️ Click any text to edit it.** No edit mode, no button to hunt for. Every text element is editable the moment the deck loads; changes autosave in your browser.
+**点字即改。** 没有编辑模式开关，打开就能改，改动自动保存在浏览器里。
 
-**🀄 Chinese that doesn't look machine-made.** Full-width punctuation, proper CJK line-height, no uppercase transforms on Hanzi, spacing between Hanzi and Latin runs. Same for Japanese and Korean.
+**🀄 Chinese that doesn't look machine-made.** Full-width punctuation, proper CJK line-height, no uppercase transforms on Hanzi, spacing between Hanzi and Latin runs.
+**不像机器排的中文。** 全角标点、合适的中文行高、汉字不做大写转换、中西文之间留空隙。
 
 **📦 One file, zero dependencies.** Inline CSS/JS, images embedded as data URIs. Email it, host it, open it offline.
+**单文件零依赖。** CSS/JS 全部内联，图片内嵌，随发随开，离线可用。
 
-**📤 Export to PDF or a public link.** PDF export reads the deck's own canvas size, so portrait decks export as portrait pages — no flag to remember. Publishing to a URL always asks first.
+**📤 HTML or PDF, your call.** PDF export reads the deck's own canvas size — portrait decks come out as portrait pages, no flag to remember.
+**HTML 或 PDF 随你选。** PDF 导出自动识别画布方向，竖屏 deck 导出就是竖版页面。
 
 ## Install
 
@@ -56,20 +62,22 @@ Optional, only for the feature that needs it:
 
 No other companion skill is required. Everything the skill reads is inside this repo.
 
-## How it works
+## Easy to go · 四个问题就开始
 
-```
-You: turn this article into a mobile deck in Chinese
+Answer four questions and the deck gets made. The assistant asks them in your language.
+回答四个问题,deck 就开始生成。助手会用你的语言提问。
 
-  1  Content     → reads your source, asks purpose / length / density
-  2  Style       → renders the gallery, you browse and name a style
-  3  Generate    → loads exactly that one design system, builds the deck
-  4  Verify      → checks every slide for overflow, overlap, broken images
-  5  Deliver     → one HTML file + what got left out and why
-  6  Share       → PDF or a public URL, if you ask for it
-```
+| # | Question · 问题 | Options · 选项 |
+|---|---|---|
+| 1 | **Purpose** · 用途 | Marketing · 营销 / Training · 培训讲解 / Talk · 演讲 / Internal · 内部汇报 |
+| 2 | **Density** · 密度 | Detail-rich pages · 细节完整可自行阅读 / Concise for speaking · 演讲精简 |
+| 3 | **Style** · 配色 | Browse the 46-style gallery, copy the name back · 在画廊里挑一个,把名字复制回来 |
+| 4 | **Output** · 交付 | **HTML (recommended · 推荐,可继续点字编辑)** / PDF (downloadable · 可下载) |
 
-Step 2 is the point. The gallery is a real HTML page with search, mood filters, and a preset/library toggle:
+Behind the scenes: the deck defaults to portrait 9:16, slide count is derived from your content, and every slide is verified for overflow and broken images before delivery.
+默认竖屏 9:16,页数根据内容自动决定,交付前每一页都会检查溢出与图片加载。
+
+Question 3 is the point. The gallery is a real HTML page with search, mood filters, a preset/library toggle, and an EN/中 switch:
 
 <p align="center">
   <img src="docs/gallery.png" alt="The style gallery: 46 design systems as color-swatch cards, each in its own display font" width="100%">
