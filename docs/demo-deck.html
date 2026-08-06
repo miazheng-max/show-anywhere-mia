@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Show Anywhere — 示例</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..700&family=Hanken+Grotesk:wght@400..700&family=DM+Mono:wght@400..500&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F0EBDE; --ink:#1F2BE0;
+  --grid:rgba(31,43,224,0.10); --ink-faint:rgba(31,43,224,0.18);
+  --font-display:"Newsreader","Noto Serif SC",Georgia,serif;
+  --font-body:"Hanken Grotesk","Noto Serif SC",sans-serif;
+  --font-mono:"DM Mono",ui-monospace,monospace;
+  --edge:56px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:#000;}
+.deck-stage{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;transform-origin:0 0;background:var(--paper);}
+.slide{position:absolute;inset:0;width:1080px;height:1920px;overflow:hidden;visibility:hidden;opacity:0;pointer-events:none;background:var(--paper);transition:opacity .28s ease;}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+.slide::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);
+  background-size:40px 40px;z-index:1;pointer-events:none;}
+.hairline-top,.hairline-bottom{position:absolute;left:var(--edge);right:var(--edge);height:1.5px;background:var(--ink);z-index:4;}
+.hairline-top{top:64px;} .hairline-bottom{bottom:96px;}
+.pagenum{position:absolute;right:var(--edge);bottom:56px;font-family:var(--font-mono);font-size:17px;color:var(--ink);letter-spacing:.06em;z-index:4;}
+.navhint{position:absolute;left:var(--edge);bottom:56px;font-family:var(--font-mono);font-size:15px;color:var(--ink);letter-spacing:.08em;opacity:.4;z-index:4;}
+.frame{position:absolute;left:var(--edge);right:var(--edge);top:150px;bottom:170px;z-index:2;display:flex;flex-direction:column;}
+.kicker{font-family:var(--font-body);font-weight:600;font-size:20px;color:var(--ink);display:flex;align-items:center;gap:10px;}
+.kicker .lat{letter-spacing:.16em;text-transform:uppercase;}
+.display-hero{font-family:var(--font-display);font-weight:700;font-size:120px;line-height:1.04;color:var(--ink);letter-spacing:-.01em;}
+.headline{font-family:var(--font-display);font-weight:700;font-size:74px;line-height:1.12;color:var(--ink);}
+.ed-callout{font-family:var(--font-display);font-weight:400;font-size:32px;line-height:1.5;color:var(--ink);}
+.body{font-family:var(--font-body);font-weight:400;font-size:25px;line-height:1.68;color:var(--ink);}
+.mono-tag{font-family:var(--font-mono);font-size:18px;letter-spacing:.06em;color:var(--ink);}
+.num-tag{font-family:var(--font-mono);font-size:26px;letter-spacing:.04em;color:var(--ink);}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1.5px solid var(--ink);padding-bottom:18px;margin-bottom:40px;}
+.index-row{display:flex;gap:28px;padding:44px 0;border-bottom:1px solid var(--ink-faint);}
+.index-row:last-child{border-bottom:none;}
+.index-row .num-tag{width:56px;flex:none;padding-top:6px;}
+.index-body{flex:1;display:flex;flex-direction:column;gap:16px;}
+.row-headline{font-family:var(--font-display);font-weight:700;font-size:40px;line-height:1.25;color:var(--ink);}
+.attribution{border-top:1px solid var(--ink);padding-top:18px;margin-top:40px;display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:17px;color:var(--ink);}
+.glitch{position:absolute;top:0;bottom:0;right:0;z-index:1;pointer-events:none;}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+.slide.visible .reveal{opacity:1;transform:translateY(0);}
+.reveal:nth-child(1){transition-delay:.05s}.reveal:nth-child(2){transition-delay:.15s}
+.reveal:nth-child(3){transition-delay:.25s}.reveal:nth-child(4){transition-delay:.35s}
+[contenteditable="true"]:hover{background:rgba(31,43,224,.05);}
+.edit-badge{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9999;
+  font-family:var(--font-mono);font-size:13px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--ink);padding:6px 14px;opacity:.85;pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="deck-viewport"><main class="deck-stage" id="deckStage">
+
+<section class="slide active" id="s1">
+  <div class="hairline-top"></div><div class="hairline-bottom"></div>
+  <div class="glitch" style="width:160px;opacity:.85;">
+    <svg width="160" height="1920" viewBox="0 0 160 1920" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#1F2BE0" stroke-width="3">
+        <line x1="20" y1="0" x2="20" y2="1920"/><line x1="46" y1="0" x2="46" y2="1920"/>
+        <line x1="72" y1="0" x2="72" y2="1920"/><line x1="98" y1="0" x2="98" y2="1920"/>
+        <line x1="124" y1="0" x2="124" y2="1920"/><line x1="150" y1="0" x2="150" y2="1920"/>
+      </g>
+    </svg>
+  </div>
+  <div class="frame" style="justify-content:center;">
+    <div class="reveal kicker"><span class="lat">AGENT SKILL</span><span style="opacity:.5">·</span><span class="lat">CLAUDE CODE / CODEX</span></div>
+    <div class="reveal display-hero" style="margin-top:36px;">在任何地方<br>都能演示</div>
+    <div class="reveal ed-callout" style="margin-top:32px;max-width:620px;">一句话变成一份能在手机上读、点一下就能改的演示文稿</div>
+    <div class="reveal attribution" style="margin-top:64px;"><span>show-anywhere-mia</span><span>1080 × 1920</span></div>
+  </div>
+  <div class="pagenum">01 / 03</div><div class="navhint">SCROLL / SWIPE ↓</div>
+</section>
+
+<section class="slide" id="s2">
+  <div class="hairline-top"></div><div class="hairline-bottom"></div>
+  <div class="frame" style="justify-content:center;">
+    <div class="topbar reveal">
+      <div class="headline">三件<br>不一样的事</div>
+      <div class="mono-tag">WHY THIS ONE</div>
+    </div>
+    <div class="index-row reveal">
+      <div class="num-tag">01</div>
+      <div class="index-body">
+        <div class="row-headline">竖屏优先</div>
+        <div class="body">默认 9:16，为手机而生。横屏设计系统会被真正重排成竖版，而不是简单压缩。</div>
+      </div>
+    </div>
+    <div class="index-row reveal">
+      <div class="num-tag">02</div>
+      <div class="index-body">
+        <div class="row-headline">看着挑风格</div>
+        <div class="body">46 套完整设计系统,渲染成可搜索的画廊——用眼睛选,而不是描述“现代但温暖”。</div>
+      </div>
+    </div>
+    <div class="index-row reveal">
+      <div class="num-tag">03</div>
+      <div class="index-body">
+        <div class="row-headline">点字即改</div>
+        <div class="body">没有编辑模式开关。打开就能改,改完自动存在浏览器里。</div>
+      </div>
+    </div>
+  </div>
+  <div class="pagenum">02 / 03</div><div class="navhint">PORTRAIT · GALLERY · EDIT</div>
+</section>
+
+<section class="slide" id="s3">
+  <div class="hairline-top"></div><div class="hairline-bottom"></div>
+  <div class="glitch" style="width:130px;opacity:.7;left:0;right:auto;">
+    <svg width="130" height="1920" viewBox="0 0 130 1920" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#1F2BE0" stroke-width="3">
+        <line x1="10" y1="0" x2="10" y2="1920"/><line x1="36" y1="0" x2="36" y2="1920"/>
+        <line x1="62" y1="0" x2="62" y2="1920"/><line x1="88" y1="0" x2="88" y2="1920"/>
+        <line x1="114" y1="0" x2="114" y2="1920"/>
+      </g>
+    </svg>
+  </div>
+  <div class="frame" style="justify-content:center;align-items:flex-end;text-align:right;">
+    <div class="reveal kicker" style="justify-content:flex-end;"><span class="lat">GET STARTED</span></div>
+    <div class="reveal headline" style="margin-top:32px;font-size:80px;">一个文件夹<br>一条命令<br>就装好了</div>
+    <div class="reveal body" style="margin-top:32px;max-width:560px;">克隆到 ~/.claude/skills/ 或 ~/.codex/skills/,然后直接开口要一份 deck。不需要任何配套技能。</div>
+    <div class="reveal attribution" style="width:100%;"><span>MIT</span><span>github.com/…/show-anywhere-mia</span></div>
+  </div>
+  <div class="pagenum">03 / 03</div><div class="navhint">FIN.</div>
+</section>
+
+</main></div>
+<div class="edit-badge">✎ 点击文字可直接编辑</div>
+<script>
+class Deck{
+  constructor(){
+    this.slides=document.querySelectorAll('.slide');
+    this.i=0;this.stage=document.getElementById('deckStage');this.lock=false;
+    this.scale();window.addEventListener('resize',()=>this.scale());
+    this.stage.querySelectorAll('.kicker,.display-hero,.ed-callout,.headline,.body,.row-headline,.mono-tag,.num-tag,.attribution span')
+      .forEach(el=>el.setAttribute('contenteditable','true'));
+    document.addEventListener('keydown',e=>{
+      if(e.target.closest('[contenteditable="true"]'))return;
+      if(['ArrowDown','ArrowRight',' '].includes(e.key)){e.preventDefault();this.go(1);}
+      if(['ArrowUp','ArrowLeft'].includes(e.key)){e.preventDefault();this.go(-1);}
+    });
+    window.addEventListener('wheel',e=>{
+      if(e.target.closest&&e.target.closest('[contenteditable="true"]'))return;
+      e.preventDefault();this.go(e.deltaY>0?1:-1);
+    },{passive:false});
+    this.show(0);
+  }
+  scale(){
+    const f=Math.min(innerWidth/1080,innerHeight/1920);
+    this.stage.style.transform=`translate(${(innerWidth-1080*f)/2}px,${(innerHeight-1920*f)/2}px) scale(${f})`;
+  }
+  go(d){if(this.lock)return;this.lock=true;this.show(this.i+d);setTimeout(()=>this.lock=false,700);}
+  show(n){this.i=Math.max(0,Math.min(n,this.slides.length-1));
+    this.slides.forEach((s,k)=>{s.classList.toggle('active',k===this.i);s.classList.toggle('visible',k===this.i);});}
+}
+new Deck();
+</script>
+</body>
+</html>
