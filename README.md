@@ -28,6 +28,22 @@ An agent skill for [Claude Code](https://claude.com/claude-code) and [OpenAI Cod
 **📤 HTML or PDF, your call.** PDF export reads the deck's own canvas size — portrait decks come out as portrait pages, no flag to remember.
 **HTML 或 PDF 随你选。** PDF 导出自动识别画布方向，竖屏 deck 导出就是竖版页面。
 
+## See it in action · 实际效果
+
+Same [Klaviyo article](https://www.klaviyo.com/blog/low-effort-bfcm-emails), same **Bold Signal** style, same 9:16 mobile canvas — one deck in English, one in 中文. Every text is click-to-edit; the email screenshots were pulled straight from the source article.
+同一篇 [Klaviyo 博客](https://www.klaviyo.com/blog/low-effort-bfcm-emails)，同一个 **Bold Signal** 风格，同一个 9:16 手机画布——分别用英文和中文各生成一份。文字点击即改，配图直接从原文抓取。
+
+<table>
+  <tr>
+    <td width="50%" align="center"><strong>English</strong></td>
+    <td width="50%" align="center"><strong>中文</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/bfcm-en.gif" alt="English deck: 8 low-effort BFCM emails, 11 slides in Bold Signal style"></td>
+    <td align="center"><img src="docs/bfcm-zh.gif" alt="中文版：8 封低成本 BFCM 邮件，11 页，Bold Signal 风格"></td>
+  </tr>
+</table>
+
 ## Install
 
 The skill is one folder. Drop it where your agent looks for skills.
