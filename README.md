@@ -1,4 +1,4 @@
-# Show Anywhere (Mia)
+# Show Anywhere PPT (Mia)
 
 **Make presentations that look designed, run anywhere, and fit a phone screen.**
 
