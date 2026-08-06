@@ -20,6 +20,8 @@ An agent skill for [Claude Code](https://claude.com/claude-code) and [OpenAI Cod
 
 **📦 One file, zero dependencies.** Inline CSS/JS, images embedded as data URIs. Email it, host it, open it offline.
 
+**📤 Export to PDF or a public link.** PDF export reads the deck's own canvas size, so portrait decks export as portrait pages — no flag to remember. Publishing to a URL always asks first.
+
 ## Install
 
 The skill is one folder. Drop it where your agent looks for skills.
@@ -42,8 +44,15 @@ For a project-local install, use `.codex/skills/show-anywhere-mia` inside the re
 
 ### Requirements
 
-- Python 3.8+ (standard library only — the gallery renderer needs no packages)
-- `python-pptx`, only if you want `.pptx` conversion: `pip install python-pptx`
+- Python 3.8+ — standard library only for generating decks and the gallery
+
+Optional, only for the feature that needs it:
+
+| Feature | Needs |
+| --- | --- |
+| `.pptx` conversion | `pip install python-pptx` |
+| PDF export | `pip install playwright && python3 -m playwright install chromium` |
+| Publish to a URL | Node.js + a free [Vercel](https://vercel.com) account |
 
 No other companion skill is required. Everything the skill reads is inside this repo.
 
@@ -57,6 +66,7 @@ You: turn this article into a mobile deck in Chinese
   3  Generate    → loads exactly that one design system, builds the deck
   4  Verify      → checks every slide for overflow, overlap, broken images
   5  Deliver     → one HTML file + what got left out and why
+  6  Share       → PDF or a public URL, if you ask for it
 ```
 
 Step 2 is the point. The gallery is a real HTML page with search, mood filters, and a preset/library toggle:
@@ -92,7 +102,9 @@ show-anywhere-mia/
 ├── scripts/
 │   ├── render-gallery.py          # renders the style gallery
 │   ├── build-gallery-data.py      # extracts palettes/fonts from design docs
-│   └── extract-pptx.py            # .pptx → text + images
+│   ├── extract-pptx.py            # .pptx → text + images
+│   ├── export-pdf.py              # deck → PDF, auto-detects canvas size
+│   └── deploy.sh                  # deck → public URL (asks first)
 ├── assets/
 │   └── gallery-template.html      # gallery shell
 └── docs/

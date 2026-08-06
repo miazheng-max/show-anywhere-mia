@@ -33,6 +33,8 @@ Two things make this different from asking an agent to "make me some slides":
 | `reference/animation-patterns.md` | CSS animation snippets by feeling |
 | `scripts/render-gallery.py` | Renders the browsable style gallery |
 | `scripts/extract-pptx.py` | Extracts text/images from a .pptx for conversion |
+| `scripts/export-pdf.py` | Exports a finished deck to PDF, one page per slide |
+| `scripts/deploy.sh` | Publishes a deck to a public URL (Vercel) |
 
 ---
 
@@ -217,7 +219,33 @@ Tell the user:
 
 If the host has a publish/artifact tool, publish the deck there so it actually appears for the user; a file opened only via a local `open` command may not surface in their UI. When publishing to such a tool, strip the `<!DOCTYPE>`/`<html>`/`<head>`/`<body>` wrapper if the host supplies its own skeleton, and make sure every image is an inlined `data:` URI, since a published page can't read local disk.
 
-Then offer: revisions, PDF export, or a shareable link.
+Then offer: revisions, a PDF, or a shareable link.
+
+---
+
+## Phase 6 — Export and Share (only when asked)
+
+### PDF
+
+```bash
+python3 <skill-dir>/scripts/export-pdf.py <deck.html> [output.pdf] [--compact]
+```
+
+Needs `pip install playwright && python3 -m playwright install chromium` (first run downloads ~150 MB of Chromium; warn the user it takes a minute).
+
+It reads the canvas size off the deck's own `.deck-stage`, so a portrait deck produces portrait pages and a landscape deck landscape pages — no flag to set. Animations are flattened to their final state, which is expected for a static file; say so rather than letting the user discover it. `--compact` renders at 2/3 scale for a noticeably smaller file. If the result is over ~10 MB, offer `--compact` instead of silently shipping something too big to email.
+
+### Public URL
+
+```bash
+bash <skill-dir>/scripts/deploy.sh <deck.html | deck-folder/>
+```
+
+**Publishing is outward-facing and effectively irreversible — a URL can be cached or indexed even after you delete the project. Never run this on your own initiative.** Require an explicit, specific request to publish *this* deck; agreement to build a deck is not agreement to publish it. The script prompts for confirmation on its own; do not pass `--yes` to route around that prompt unless the user has just told you to publish in this conversation.
+
+Before deploying, re-read the deck for anything that shouldn't be public — client names, unreleased numbers, personal data in screenshots — and raise it rather than assuming it was intended.
+
+Needs Node.js and a free Vercel account. If the user isn't logged in, the script walks them through it; they complete the login themselves.
 
 ---
 
