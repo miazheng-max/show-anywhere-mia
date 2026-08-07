@@ -10,27 +10,27 @@ An agent skill for [Claude Code](https://claude.com/claude-code) and [OpenAI Cod
 
 ## Why this one · 为什么选它
 
-**📱 Portrait by default.** The canvas is 1080×1920 (9:16) unless you ask for widescreen. Most decks get read on a phone now, not projected — and the skill *re-authors* landscape design systems into vertical layouts instead of squashing them.
+**📱 Portrait by default.** The canvas is 1080×1920 (9:16) unless you ask for widescreen. Most decks get read on a phone now, not projected — and the skill *re-authors* landscape design systems into vertical layouts instead of squashing them.<br>
 **竖屏优先。** 默认 1080×1920（9:16）画布，为手机阅读而生；横屏设计系统会被真正重排成竖版，而不是简单压缩。
 
-**🎨 You pick the look by seeing it.** 46 complete design systems, rendered as a searchable gallery with an EN/中 toggle — real palettes in their real display fonts. Choose by sight, not by typing "modern but warm" and hoping.
+**🎨 You pick the look by seeing it.** 46 complete design systems, rendered as a searchable gallery with an EN/中 toggle — real palettes in their real display fonts. Choose by sight, not by typing "modern but warm" and hoping.<br>
 **看着挑风格。** 46 套完整设计系统渲染成可搜索的画廊，界面与卡片介绍支持中英一键切换——用眼睛选，不靠形容词碰运气。
 
-**✍️ Click any text to edit it.** No edit mode, no button to hunt for. Every text element is editable the moment the deck loads; changes autosave in your browser.
+**✍️ Click any text to edit it.** No edit mode, no button to hunt for. Every text element is editable the moment the deck loads; changes autosave in your browser.<br>
 **点字即改。** 没有编辑模式开关，打开就能改，改动自动保存在浏览器里。
 
-**🀄 Chinese that doesn't look machine-made.** Full-width punctuation, proper CJK line-height, no uppercase transforms on Hanzi, spacing between Hanzi and Latin runs.
+**🀄 Chinese that doesn't look machine-made.** Full-width punctuation, proper CJK line-height, no uppercase transforms on Hanzi, spacing between Hanzi and Latin runs.<br>
 **不像机器排的中文。** 全角标点、合适的中文行高、汉字不做大写转换、中西文之间留空隙。
 
-**📦 One file, zero dependencies.** Inline CSS/JS, images embedded as data URIs. Email it, host it, open it offline.
+**📦 One file, zero dependencies.** Inline CSS/JS, images embedded as data URIs. Email it, host it, open it offline.<br>
 **单文件零依赖。** CSS/JS 全部内联，图片内嵌，随发随开，离线可用。
 
-**📤 HTML or PDF, your call.** PDF export reads the deck's own canvas size — portrait decks come out as portrait pages, no flag to remember.
+**📤 HTML or PDF, your call.** PDF export reads the deck's own canvas size — portrait decks come out as portrait pages, no flag to remember.<br>
 **HTML 或 PDF 随你选。** PDF 导出自动识别画布方向，竖屏 deck 导出就是竖版页面。
 
 ## See it in action · 实际效果
 
-Same [Klaviyo article](https://www.klaviyo.com/blog/low-effort-bfcm-emails), same **Bold Signal** style, same 9:16 mobile canvas — one deck in English, one in 中文. Every text is click-to-edit; the email screenshots were pulled straight from the source article.
+Same [Klaviyo article](https://www.klaviyo.com/blog/low-effort-bfcm-emails), same **Bold Signal** style, same 9:16 mobile canvas — one deck in English, one in 中文. Every text is click-to-edit; the email screenshots were pulled straight from the source article.<br>
 同一篇 [Klaviyo 博客](https://www.klaviyo.com/blog/low-effort-bfcm-emails)，同一个 **Bold Signal** 风格，同一个 9:16 手机画布——分别用英文和中文各生成一份。文字点击即改，配图直接从原文抓取。
 
 <table>
