@@ -1,7 +1,7 @@
 # Bold Template Pack
 
 This pack brings the `beautiful-html-templates` design systems into the
-`show-anywhere-mia` skill without making them the default for every deck.
+`show-anywhere-slide` skill without making them the default for every deck.
 
 ## What To Read
 

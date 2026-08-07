@@ -51,18 +51,18 @@ The skill is one folder. Drop it where your agent looks for skills.
 ### Claude Code
 
 ```bash
-git clone https://github.com/miazheng-max/show-anywhere-mia.git ~/.claude/skills/show-anywhere-mia
+git clone https://github.com/miazheng-max/show-anywhere-slide.git ~/.claude/skills/show-anywhere-slide
 ```
 
-Then invoke it with `/show-anywhere-mia`, or just ask for a deck and it will trigger on its own.
+Then invoke it with `/show-anywhere-slide`, or just ask for a deck and it will trigger on its own.
 
 ### Codex CLI
 
 ```bash
-git clone https://github.com/miazheng-max/show-anywhere-mia.git ~/.codex/skills/show-anywhere-mia
+git clone https://github.com/miazheng-max/show-anywhere-slide.git ~/.codex/skills/show-anywhere-slide
 ```
 
-For a project-local install, use `.codex/skills/show-anywhere-mia` inside the repo instead. Codex also reads `~/.agents/skills/` if you keep skills shared across agents.
+For a project-local install, use `.codex/skills/show-anywhere-slide` inside the repo instead. Codex also reads `~/.agents/skills/` if you keep skills shared across agents.
 
 ### Requirements
 
@@ -111,7 +111,7 @@ Each design system is a full specification, not a color preset — which is why 
 ## Repo layout
 
 ```
-show-anywhere-mia/
+show-anywhere-slide/
 ├── SKILL.md                       # the skill itself
 ├── template-pack/
 │   ├── selection-index.json       # compact metadata for all 34 systems
@@ -152,7 +152,7 @@ Built on two MIT-licensed projects by [Zara Zhang](https://github.com/zarazhangr
 - [**frontend-slides**](https://github.com/zarazhangrui/frontend-slides) — the fixed-stage layout model, style presets, and anti-AI-slop design philosophy this skill is built around.
 - [**beautiful-html-templates**](https://github.com/zarazhangrui/beautiful-html-templates) — the 34 bundled design systems.
 
-`show-anywhere-mia` bundles these into a single self-contained skill and adds the visual style gallery, portrait-first defaults, cross-agent portability, expanded CJK typography, and always-on inline editing. See [NOTICE](NOTICE) for exactly what was taken and what was changed.
+`show-anywhere-slide` bundles these into a single self-contained skill and adds the visual style gallery, portrait-first defaults, cross-agent portability, expanded CJK typography, and always-on inline editing. See [NOTICE](NOTICE) for exactly what was taken and what was changed.
 
 ## License
 

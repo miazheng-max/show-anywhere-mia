@@ -1,5 +1,5 @@
 ---
-name: show-anywhere-mia
+name: show-anywhere-slide
 description: Build beautiful, self-contained HTML presentations that run in any browser — mobile-first 9:16 portrait by default, widescreen 16:9 on request. Bundles 46 complete design systems (12 curated presets + 34 full template design docs) and a browsable visual style gallery, so the user picks a look by sight instead of describing it in words. Use when the user wants to make a deck, slides, presentation, PPT, 演示文稿, or 手机端PPT; wants to convert a .pptx or an article/PDF into slides; wants to browse or compare visual styles/templates; or asks for a "style gallery". Handles Chinese and other CJK content with correct typography. Everything needed is bundled — no companion skill required.
 ---
 
